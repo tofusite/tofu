@@ -12,7 +12,7 @@ pub mod serve;
 pub enum Command {
     Build(build::Build),
     Init(init::Init),
-    Serve(serve::Serve)
+    Serve(serve::Serve),
 }
 
 impl Command {
@@ -27,4 +27,12 @@ impl Command {
 
 pub trait Execute {
     fn execute(&self, args: &Args) -> Result<()>;
+}
+
+pub fn default_config_file() -> String {
+    String::from("./tofu.toml")
+}
+
+pub fn default_dir() -> String {
+    String::from(".")
 }

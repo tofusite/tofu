@@ -7,8 +7,7 @@ use serde::{Deserialize, Serialize};
 pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config> {
     let contents = fs::read_to_string(&path)
         .with_context(|| format!("Unable to read config file: {}", path.as_ref().display()))?;
-    Ok(toml::from_str(&contents)
-        .with_context(|| "Invalid config file format")?)
+    Ok(toml::from_str(&contents).with_context(|| "Invalid config file format")?)
 }
 
 #[derive(Serialize, Deserialize, Debug)]

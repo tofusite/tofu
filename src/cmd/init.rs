@@ -5,12 +5,13 @@ use crate::Args;
 
 use super::Execute;
 
-/// Creates a new tofu project in the current directory
 #[derive(FromArgs)]
-#[argh(subcommand, name = "init")]
-pub struct Init {
-
-}
+#[argh(
+    subcommand,
+    name = "init",
+    description = "create a new tofu project in the current directory"
+)]
+pub struct Init {}
 
 impl Execute for Init {
     fn execute(&self, args: &Args) -> Result<()> {
