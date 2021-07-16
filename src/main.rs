@@ -14,8 +14,8 @@ fn main() -> Result<()> {
     args.command.execute(&args)
 }
 
-/// A modern static site generator.
 #[derive(FromArgs)]
+#[argh(description = "A smarter static site generator.")]
 pub struct Args {
     #[argh(subcommand)]
     command: Command,

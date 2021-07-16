@@ -4,7 +4,9 @@ use anyhow::Result;
 use argh::FromArgs;
 
 use crate::cmd::{default_config_file, default_dir};
-use crate::{site::config::read_config, Args};
+use crate::site::build;
+use crate::site::config::Config;
+use crate::Args;
 
 use super::Execute;
 
@@ -27,12 +29,21 @@ pub struct Build {
         default = "default_dir()"
     )]
     dir: String,
+    #[argh(
+        option,
+        description = "the directory to output to",
+        default = "String::from(\"./public\")"
+    )]
+    out: String,
 }
 
 impl Execute for Build {
     fn execute(&self, args: &Args) -> Result<()> {
+        let config = Config::read(&self.config)?;
         let dir = Path::new(&self.dir);
-        let config = read_config(&self.config)?;
+        let out = Path::new(&self.out);
+
+        build(config, dir, out)?;
 
         Ok(())
     }

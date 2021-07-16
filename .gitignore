@@ -2,4 +2,5 @@
 /target
 
 # Tofu
+/.tofu
 tofu.toml

@@ -1,11 +1,19 @@
-use std::path::Path;
+use std::{
+    net::SocketAddr,
+    path::{Path, PathBuf},
+    thread,
+};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use argh::FromArgs;
+use tokio::runtime::Runtime;
+use warp::Filter;
 
-use crate::{site::config::read_config, Args};
+use crate::{site::config::Config, Args};
 
 use super::Execute;
+
+const OUT_DIR: &str = "./.tofu/serve_output";
 
 #[derive(FromArgs)]
 #[argh(
@@ -28,6 +36,12 @@ pub struct Serve {
     dir: String,
     #[argh(
         option,
+        description = "the host to bind the development server to",
+        default = "String::from(\"0.0.0.0\")"
+    )]
+    host: String,
+    #[argh(
+        option,
         description = "the port to run a development server on",
         default = "8080"
     )]
@@ -36,9 +50,34 @@ pub struct Serve {
 
 impl Execute for Serve {
     fn execute(&self, args: &Args) -> Result<()> {
+        let config = Config::read(&self.config)?;
+        let out = PathBuf::from(OUT_DIR);
         let dir = Path::new(&self.dir);
-        let config = read_config(&self.config)?;
+
+        let host = &self.host;
+        let port = self.port;
+
+        let bind_string = format!("{}:{}", host, port);
+        let bind = bind_string
+            .parse()
+            .with_context(|| format!("Invalid bind address format: {}", bind_string))?;
+
+        create_http_server(bind, out);
+
+        loop {}
 
         Ok(())
     }
+}
+
+/// Create the static file server used to host files for the dev server.
+fn create_http_server(bind: SocketAddr, dir: PathBuf) {
+    thread::spawn(move || {
+        // This Filter listens on "/" and serves files from the output directory
+        let root = warp::get().and(warp::fs::dir(dir));
+
+        // Spawn a tokio runtime and block on the warp server
+        let rt = Runtime::new().expect("Unable to spawn tokio runtime");
+        rt.block_on(warp::serve(root).run(bind));
+    });
 }
