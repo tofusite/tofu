@@ -1,19 +1,30 @@
 use anyhow::Result;
-use clap::Clap;
+use argh::FromArgs;
 
-use crate::Opts;
+use crate::Args;
 
 pub mod build;
 pub mod init;
 pub mod serve;
 
-#[derive(Clap)]
-pub enum SubCommand {
+#[derive(FromArgs)]
+#[argh(subcommand)]
+pub enum Command {
     Build(build::Build),
     Init(init::Init),
     Serve(serve::Serve)
 }
 
+impl Command {
+    pub fn execute(&self, args: &Args) -> Result<()> {
+        match &self {
+            Command::Build(cmd) => cmd.execute(&args),
+            Command::Init(cmd) => cmd.execute(&args),
+            Command::Serve(cmd) => cmd.execute(&args),
+        }
+    }
+}
+
 pub trait Execute {
-    fn execute(&self, opts: &Opts) -> Result<()>;
+    fn execute(&self, args: &Args) -> Result<()>;
 }

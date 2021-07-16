@@ -1,28 +1,22 @@
 use anyhow::Result;
-use clap::{crate_authors, crate_version, Clap};
-use cmd::Execute;
+use argh::FromArgs;
 
-use crate::cmd::SubCommand;
+use crate::cmd::Command;
 
 mod cmd;
 mod site;
 
 fn main() -> Result<()> {
     // Parse command line arguments
-    let opts = Opts::parse();
+    let args: Args = argh::from_env();
 
     // Dispatch each subcommand to its respective handler
-    match &opts.subcommand {
-        SubCommand::Build(cmd) => cmd.execute(&opts),
-        SubCommand::Init(cmd) => cmd.execute(&opts),
-        SubCommand::Serve(cmd) => cmd.execute(&opts),
-    }
+    args.command.execute(&args)
 }
 
 /// A modern static site generator.
-#[derive(Clap)]
-#[clap(version = crate_version!(), author = crate_authors!())]
-pub struct Opts {
-    #[clap(subcommand)]
-    subcommand: SubCommand,
+#[derive(FromArgs)]
+pub struct Args {
+    #[argh(subcommand)]
+    command: Command,
 }

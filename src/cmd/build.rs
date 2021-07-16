@@ -1,30 +1,25 @@
 use std::path::Path;
 
 use anyhow::Result;
-use clap::Clap;
+use argh::FromArgs;
 
-use crate::{Opts, site::config::read_config};
+use crate::{Args, site::config::read_config};
 
 use super::Execute;
 
-/// Builds the tofu site for production
-#[derive(Clap)]
+#[derive(FromArgs)]
+#[argh(subcommand, name = "build", description = "build the tofu site for production")]
 pub struct Build {
-    /// Specifies the config file to use
-    #[clap(short, long, default_value = "./tofu.toml")]
+    #[argh(option, description = "the config file to use")]
     config: String,
-
-    /// Specifies the directory to build
-    #[clap(short, long, default_value = ".")]
+    #[argh(option, description = "the directory to build")]
     dir: String,
 }
 
 impl Execute for Build {
-    fn execute(&self, opts: &Opts) -> Result<()> {
+    fn execute(&self, args: &Args) -> Result<()> {
         let dir = Path::new(&self.dir);
         let config = read_config(&self.config)?;
-
-
 
         Ok(())
     }

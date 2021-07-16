@@ -1,18 +1,19 @@
 use anyhow::Result;
-use clap::Clap;
+use argh::FromArgs;
 
-use crate::Opts;
+use crate::Args;
 
 use super::Execute;
 
 /// Creates a new tofu project in the current directory
-#[derive(Clap)]
+#[derive(FromArgs)]
+#[argh(subcommand, name = "init")]
 pub struct Init {
 
 }
 
 impl Execute for Init {
-    fn execute(&self, opts: &Opts) -> Result<()> {
+    fn execute(&self, args: &Args) -> Result<()> {
         todo!()
     }
 }
