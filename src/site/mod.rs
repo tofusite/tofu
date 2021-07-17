@@ -1,46 +1,102 @@
-use std::{fs::{File, create_dir}, path::Path};
+use std::{fs::{create_dir, File}, io::{BufReader, Read}, path::{Path, PathBuf}};
 
 use anyhow::{Context, Result};
+use sha2::{Digest, Sha256};
+use walkdir::WalkDir;
 
 use self::{cache::Cache, config::Config};
 
 pub mod cache;
 pub mod config;
 
-pub fn build<P: AsRef<Path>>(config: Config, dir: P, out: P) -> Result<()> {
-    println!(
-        "{:#?} {} {}",
-        config,
-        dir.as_ref().to_string_lossy(),
-        out.as_ref().to_string_lossy()
-    );
+const CACHE_PATH: &str = "./.tofu/cache.toml";
 
-    read_tofu_dir(dir)?;
-
-    Ok(())
+pub struct Site {
+    config: Config,
+    dir: PathBuf,
 }
 
-fn read_tofu_dir<P: AsRef<Path>>(dir: P) -> Result<()> {
-    let tofu_dir = dir.as_ref().join("./.tofu");
-
-    if !tofu_dir.exists() {
-        create_dir(&tofu_dir).with_context(|| "Unable to create tofu data directory")?;
+impl Site {
+    pub fn new<P: AsRef<Path>>(config: Config, dir: P) -> Self {
+        Self {
+            config,
+            dir: dir.as_ref().into(),
+        }
     }
 
-    let cache_file = tofu_dir.join("./cache.toml");
+    /// Create the "./.tofu" directory if it doesn't exist already
+    fn create_tofu_dir(&self) -> Result<()> {
+        let dir = self.dir.join("./.tofu");
 
-    if !cache_file.exists() {
-        File::create(&cache_file)?;
+        if !dir.exists() {
+            create_dir(dir)?;
+        }
+
+        Ok(())
     }
 
-    let mut cache = Cache::load(&cache_file)?;
+    /// Attempts to read the cache file for incremental builds
+    /// If the cache file doesn't exist or is invalid it will return an empty Cache
+    fn read_cache(&self) -> Cache {
+        let cache_file = Path::new(CACHE_PATH);
 
-    println!("{:#?}", cache);
+        if !cache_file.exists() {
+            return Cache::default();
+        }
 
-    cache.insert("/", "abc");
-    cache.insert("/aaa", "123");
+        // If for whatever reason we aren't able to load the cache, we can just use an empty cache and rebuild entirely
+        Cache::load(&cache_file).unwrap_or_else(|_| Cache::default())
+    }
 
-    cache.save(&cache_file)?;
+    pub fn build<P: AsRef<Path>>(&self, out: P) -> Result<()> {
+        self.create_tofu_dir()?;
+        self.build_content(out)?;
 
-    Ok(())
+        Ok(())
+    }
+
+    fn build_content<P: AsRef<Path>>(&self, out: P) -> Result<()> {
+        let mut cache = self.read_cache();
+
+        let dir = self.dir.join("./content/").canonicalize()?;
+        for entry in WalkDir::new(&dir) {
+            let entry = entry?;
+            let path = entry.path().display().to_string();
+
+            if entry.file_type().is_file() {
+                let file = File::open(entry.path())?;
+                let mut reader = BufReader::new(file);
+                let digest = Site::hash(reader)?;
+
+                if cache.dirty(&path, &digest) {
+                    cache.insert(&path, &digest);
+
+                    // TODO: Rebuild file
+                    println!("Build: {}", path);
+                } else {
+                    println!("Cached: {}", path);
+                }
+            }
+        }
+
+        cache.save(CACHE_PATH)?;
+
+        Ok(())
+    }
+
+    fn hash<R: Read>(mut reader: R) -> Result<String> {
+        let mut hasher = Sha256::new();
+        let mut buffer = [0; 1024];
+
+        loop {
+            let count = reader.read(&mut buffer)?;
+            if count == 0 {
+                break;
+            }
+
+            hasher.update(&buffer[..count]);
+        }
+
+        Ok(format!("{:x}", hasher.finalize()))
+    }
 }

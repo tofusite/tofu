@@ -25,8 +25,9 @@ impl Cache {
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let contents = toml::to_string(self).with_context(|| "Unable to serialize cache")?;
         let contents = format!(
-            "{}\n{}",
+            "{}\n{}\n{}",
             "# This file is used to keep track of page changes for incremental builds. You shouldn't need to edit it.",
+            "# The cache file is specific to this machine, you should NOT commit it to version control.",
             contents
         );
         Ok(fs::write(path, contents).with_context(|| "Unable to write cache file")?)
@@ -36,7 +37,7 @@ impl Cache {
     pub fn dirty<S: Into<String>>(&self, path: S, digest: S) -> bool {
         self.entries
             .get(&path.into())
-            .map_or(false, |entry| entry == &digest.into())
+            .map_or(true, |val| val != &digest.into())
     }
 
     /// Insert a value into the cache.

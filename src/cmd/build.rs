@@ -4,7 +4,7 @@ use anyhow::Result;
 use argh::FromArgs;
 
 use crate::cmd::{default_config_file, default_dir};
-use crate::site::build;
+use crate::site::Site;
 use crate::site::config::Config;
 use crate::Args;
 
@@ -43,8 +43,8 @@ impl Execute for Build {
         let dir = Path::new(&self.dir);
         let out = Path::new(&self.out);
 
-        build(config, dir, out)?;
+        let site = Site::new(config, dir);
 
-        Ok(())
+        site.build(out)
     }
 }

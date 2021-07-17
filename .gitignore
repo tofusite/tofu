@@ -4,3 +4,6 @@
 # Tofu
 /.tofu
 tofu.toml
+content/
+static/
+theme/
