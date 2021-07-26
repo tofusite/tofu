@@ -26,7 +26,7 @@ impl Execute for Init {
     fn execute(&self, args: &Args) -> Result<()> {
         let dir = current_dir()?;
 
-        if !dir.read_dir()?.next().is_none() && !self.force {
+        if dir.read_dir()?.next().is_some() && !self.force {
             bail!(
                 "Can't create a new tofu project in a non-empty directory. Use --force to skip this check."
             );

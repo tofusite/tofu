@@ -4,8 +4,6 @@ use anyhow::Result;
 use argh::FromArgs;
 
 use crate::cmd::{default_config_file, default_dir};
-use crate::site::Site;
-use crate::site::config::Config;
 use crate::Args;
 
 use super::Execute;
@@ -39,12 +37,6 @@ pub struct Build {
 
 impl Execute for Build {
     fn execute(&self, args: &Args) -> Result<()> {
-        let config = Config::read(&self.config)?;
-        let dir = Path::new(&self.dir);
-        let out = Path::new(&self.out);
-
-        let site = Site::new(config, dir);
-
-        site.build(out)
+        Ok(())
     }
 }

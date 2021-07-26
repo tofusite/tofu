@@ -4,7 +4,6 @@ use argh::FromArgs;
 use crate::cmd::Command;
 
 mod cmd;
-mod site;
 
 fn main() -> Result<()> {
     // Parse command line arguments

@@ -9,7 +9,7 @@ use argh::FromArgs;
 use tokio::runtime::Runtime;
 use warp::Filter;
 
-use crate::{site::config::Config, Args};
+use crate::Args;
 
 use super::Execute;
 
@@ -50,7 +50,6 @@ pub struct Serve {
 
 impl Execute for Serve {
     fn execute(&self, args: &Args) -> Result<()> {
-        let config = Config::read(&self.config)?;
         let out = PathBuf::from(OUT_DIR);
         let dir = Path::new(&self.dir);
 
