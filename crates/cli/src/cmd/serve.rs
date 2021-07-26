@@ -1,4 +1,9 @@
-use std::{net::SocketAddr, path::{Path, PathBuf}, thread, time::Duration};
+use std::{
+    net::SocketAddr,
+    path::{Path, PathBuf},
+    thread,
+    time::Duration,
+};
 
 use anyhow::{Context, Result};
 use argh::FromArgs;
