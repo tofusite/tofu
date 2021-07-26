@@ -15,7 +15,7 @@ pub fn parse_frontmatter<S: AsRef<str>>(
 ) -> Result<(Frontmatter, String), FrontmatterError> {
     let caps = RE
         .captures(input.as_ref())
-        .ok_or_else(|| FrontmatterError::InvalidFrontmatter)?;
+        .ok_or(FrontmatterError::InvalidFrontmatter)?;
 
     // These should be safe to unwrap because they will always exist if there's a match
     let frontmatter_raw = caps.get(1).unwrap().as_str();
