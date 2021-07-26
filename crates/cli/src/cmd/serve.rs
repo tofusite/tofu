@@ -1,8 +1,4 @@
-use std::{
-    net::SocketAddr,
-    path::{Path, PathBuf},
-    thread,
-};
+use std::{net::SocketAddr, path::{Path, PathBuf}, thread, time::Duration};
 
 use anyhow::{Context, Result};
 use argh::FromArgs;
@@ -49,9 +45,10 @@ pub struct Serve {
 }
 
 impl Execute for Serve {
-    fn execute(&self, args: &Args) -> Result<()> {
+    fn execute(&self, _args: &Args) -> Result<()> {
         let out = PathBuf::from(OUT_DIR);
-        let dir = Path::new(&self.dir);
+        let _dir = Path::new(&self.dir);
+        let _config = &self.config;
 
         let host = &self.host;
         let port = self.port;
@@ -63,9 +60,9 @@ impl Execute for Serve {
 
         create_http_server(bind, out);
 
-        loop {}
-
-        Ok(())
+        loop {
+            std::thread::sleep(Duration::from_millis(1000));
+        }
     }
 }
 

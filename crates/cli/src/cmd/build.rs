@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use anyhow::Result;
 use argh::FromArgs;
 
@@ -36,7 +34,10 @@ pub struct Build {
 }
 
 impl Execute for Build {
-    fn execute(&self, args: &Args) -> Result<()> {
+    fn execute(&self, _args: &Args) -> Result<()> {
+        let _config = &self.config;
+        let _dir = &self.dir;
+        let _out = &self.out;
         Ok(())
     }
 }

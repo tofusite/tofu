@@ -1,6 +1,6 @@
 use std::env::current_dir;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{bail, Result};
 use argh::FromArgs;
 
 use crate::Args;
@@ -23,7 +23,7 @@ pub struct Init {
 }
 
 impl Execute for Init {
-    fn execute(&self, args: &Args) -> Result<()> {
+    fn execute(&self, _args: &Args) -> Result<()> {
         let dir = current_dir()?;
 
         if dir.read_dir()?.next().is_some() && !self.force {
