@@ -18,9 +18,9 @@ pub enum Command {
 impl Command {
     pub fn execute(&self, args: &Args) -> Result<()> {
         match &self {
-            Command::Build(cmd) => cmd.execute(&args),
-            Command::Init(cmd) => cmd.execute(&args),
-            Command::Serve(cmd) => cmd.execute(&args),
+            Command::Build(cmd) => cmd.execute(args),
+            Command::Init(cmd) => cmd.execute(args),
+            Command::Serve(cmd) => cmd.execute(args),
         }
     }
 }
