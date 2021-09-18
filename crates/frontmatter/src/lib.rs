@@ -3,9 +3,10 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+// A maybe a bit overkill regex to parse TOML frontmatter
 lazy_static! {
     static ref RE: Regex =
-        Regex::new(r"(?s)^\s*---\r?\n(.*?)\s*\r?\n\s*---(?:\r?\n(.*))?$").unwrap();
+        Regex::new(r"(?s)^\s*\+{3}\r?\n(.*?)\s*\r?\n\s*\+{3}(?:\r?\n(.*))?$").unwrap();
 }
 
 /// Reads and parses frontmatter from the provided string.
