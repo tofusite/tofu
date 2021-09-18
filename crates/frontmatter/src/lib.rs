@@ -47,9 +47,9 @@ mod tests {
     #[test]
     fn parse_simple() -> Result<(), FrontmatterError> {
         let input = r#"
----
++++
 title = "test"
----
++++
 content
 "#;
 
